@@ -93,6 +93,3 @@ def pythonUnivar(dataframe,feature, target, prediction=None,bins=10):
     ax1.legend(loc='upper left')
     dataframe[target]=targetVar
     return
-        
-    #ax1.hist(Data[feature],weights=Data['test_result_numeric'], alpha=0.4, normed=True, bins=8)
-pythonUnivar(Data, 'skin_thickness','test_result','Predictions',bins=10)
