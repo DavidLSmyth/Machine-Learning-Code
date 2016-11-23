@@ -1,4 +1,4 @@
-def pythonUnivar(dataframe,feature, target, prediction=None,bins=10): 
+def pythonUnivar(dataframe,feature, target, targetSuccessName=None, prediction=None,bins=10): 
     #dataframe should be a pandas dataframe
     #feature, target, prediction are strings
     #bins is an integer
@@ -44,24 +44,30 @@ def pythonUnivar(dataframe,feature, target, prediction=None,bins=10):
         return
     elif len(dataframe[target].unique())!=2:
         print('The target variable must be binary for this plot!')
-        print(target+' has '+len(dataframe[target].unique())+' columns')
+        print(target+' has '+str(len(dataframe[target].unique()))+' columns')
         return
+    elif targetSuccessName not in dataframe[target].unique() and targetSuccessName!=None:
+        print(targetSuccessName+' is not present in the target column')
     else:
         #encode the target variable to 1-0 binary values
         targetVar=dataframe[target]
         targetVals=dataframe[target].unique()
-        dataframe[target]=np.where(dataframe[target]==targetVals[0], 1, 0) 
-        
+        if targetSuccessName==None:
+            targetSuccessName=targetVals[0]
+ 
+        print('targetVals: 1',targetVals[0])
+        dataframe[target]=np.where(dataframe[target]==targetSuccessName, 1, 0) 
+        print(dataframe[target])
         #create a new matplotlib figure
         fig=plt.figure()
         ax1=fig.add_subplot(111)
         #add title
-        plt.title('Histogram of '+feature+' and proportion of "successes" in each bin')
+        plt.title('Histogram of '+feature+' and proportion of '+str(targetVals[0])+' in each bin')
         #add second axis to give proporion of 1 values per bin
         ax2 = ax1.twinx()
         #label both axes
-        ax2.set_ylabel('Proportion of Positive tests per bin')
-        ax1.set_ylabel('Count of People in each bin')
+        ax2.set_ylabel('Proportion of '+str(targetVals[0])+' per bin')
+        ax1.set_ylabel('Count of '+str(targetVals[0])+' in each bin')
         #create a regular histogram
         n=ax1.hist(dataframe[feature], bins=bins, normed=False, alpha=0.5)
         for i in n:
@@ -73,11 +79,13 @@ def pythonUnivar(dataframe,feature, target, prediction=None,bins=10):
         #now add the line plot which shows how the response varies
         y,binEdges=np.histogram(dataframe[feature],weights=dataframe[target], bins=bins)
         print(binEdges)
+        print('y')
         print(y)
-        print(y/n[0])
+        print('y/n[0]')
+        print(np.nan_to_num((y/n[0])))
         bincenters = (0.5*(binEdges[1:]+binEdges[:-1]))
         #mother of god this took ages
-        ax1.plot(bincenters,(ax1.get_yticks()[-1])*(y/n[0]),'-', color='red', label='Target value density')
+        ax1.plot(bincenters,(ax1.get_yticks()[-1])*(np.nan_to_num((y/n[0]))),'-', color='red', label='Target value density')
         
         
     #if there is a prediction, then also add it to the plot to see how closely it corresponds
